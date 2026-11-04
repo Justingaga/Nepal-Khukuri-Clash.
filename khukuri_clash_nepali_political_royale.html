@@ -11,7 +11,7 @@
         
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #0c0814;
+            background-color: #0c0d14;
             color: #ffffff;
             user-select: none;
             overflow: hidden;
@@ -26,1103 +26,576 @@
         }
 
         .gold-glow {
-            text-shadow: 0 0 10px rgba(234, 179, 8, 0.8), 0 0 20px rgba(217, 119, 6, 0.6);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.8), 0 0 20px rgba(212, 175, 55, 0.6);
         }
 
         .crimson-glow {
-            text-shadow: 0 0 10px rgba(225, 29, 72, 0.8), 0 0 20px rgba(159, 18, 57, 0.6);
+            text-shadow: 0 0 10px rgba(225, 29, 72, 0.8), 0 0 20px rgba(225, 29, 72, 0.6);
         }
 
-        .cyan-glow {
-            text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(14, 116, 144, 0.6);
+        .health-bar-fill {
+            transition: width 0.1s ease-out;
         }
 
-        .nepal-btn {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%);
-            border: 2px solid #f59e0b;
-            box-shadow: 0 4px 0 #7f1d1d, 0 0 15px rgba(220, 38, 38, 0.5);
-            transition: all 0.1s ease;
+        .special-gauge-fill {
+            transition: width 0.2s ease-out;
         }
 
-        .nepal-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #7f1d1d, 0 0 5px rgba(220, 38, 38, 0.5);
+        .character-card {
+            transition: all 0.2s ease;
         }
 
-        .nepal-btn-blue {
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 50%, #1e3a8a 100%);
-            border: 2px solid #38bdf8;
-            box-shadow: 0 4px 0 #1e3a8a, 0 0 15px rgba(37, 99, 235, 0.5);
+        .character-card:hover {
+            transform: translateY(-4px);
         }
 
-        .nepal-btn-blue:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #1e3a8a, 0 0 5px rgba(37, 99, 235, 0.5);
-        }
-
-        .touch-btn {
-            touch-action: manipulation;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-        }
-        
-        .touch-btn:active {
-            background: rgba(245, 158, 11, 0.3);
+        .character-card.selected {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between items-center bg-slate-950 relative overflow-hidden">
+<body class="flex flex-col items-center justify-center min-h-screen p-2 bg-slate-950">
 
-    <!-- Game Main Container -->
-    <div class="relative w-full max-w-5xl h-full max-h-[840px] flex flex-col justify-between p-2 md:p-4 my-auto">
+    <!-- GAME CONTAINER -->
+    <div class="relative w-full max-w-5xl bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col">
         
-        <!-- Top HUD -->
-        <div class="w-full bg-slate-900/90 backdrop-blur-md rounded-2xl p-3 md:p-4 border-2 border-amber-600/50 flex justify-between items-center gap-3 z-10 shadow-2xl">
+        <!-- TOP HUD -->
+        <div id="hud" class="hidden absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-slate-950/90 to-transparent flex justify-between items-center pointer-events-none">
             <!-- Player 1 Status -->
-            <div class="flex-1 flex flex-col items-start gap-1">
-                <div class="flex justify-between w-full items-center">
-                    <span id="p1-name" class="font-nepali text-lg md:text-xl text-amber-400 tracking-wide">P1: BALEN SHAH</span>
-                    <span id="p1-score" class="font-cinzel text-xs text-amber-200">SCORE: 0</span>
+            <div class="flex flex-col w-2/5">
+                <div class="flex justify-between items-center mb-1">
+                    <span id="p1-name" class="font-cinzel font-bold text-lg text-amber-400">KP OLI</span>
+                    <span id="p1-hp-text" class="text-xs text-slate-300 font-mono">100 / 100</span>
                 </div>
-                <!-- HP Bar -->
-                <div class="w-full bg-slate-950 h-5 md:h-6 rounded-md border-2 border-amber-600/60 overflow-hidden relative p-0.5">
-                    <div id="p1-hp" class="h-full bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500 rounded-sm transition-all duration-75 w-full"></div>
+                <div class="w-full bg-slate-800/80 h-5 rounded-sm border border-slate-700 overflow-hidden relative">
+                    <div id="p1-hp" class="health-bar-fill h-full bg-emerald-600 w-full"></div>
                 </div>
-                <!-- Energy Gauge -->
-                <div class="w-full bg-slate-950 h-2.5 rounded-sm border border-slate-700 overflow-hidden mt-0.5 flex justify-between items-center">
-                    <div id="p1-energy" class="h-full bg-cyan-400 transition-all duration-100 w-0"></div>
+                <!-- Special Meter -->
+                <div class="w-full bg-slate-950/80 h-2 mt-1 rounded-sm border border-slate-800 overflow-hidden">
+                    <div id="p1-special" class="special-gauge-fill h-full bg-amber-500 w-0"></div>
                 </div>
             </div>
 
-            <!-- Center Info / Timer -->
-            <div class="flex flex-col items-center justify-center min-w-[90px] md:min-w-[120px]">
-                <div id="timer" class="font-cinzel text-3xl md:text-4xl font-black text-amber-400 gold-glow">99</div>
-                <div class="text-[10px] md:text-xs font-nepali tracking-widest text-red-400 uppercase">सिंहदरबार भिडन्त</div>
+            <!-- Timer & Round -->
+            <div class="flex flex-col items-center justify-center bg-slate-950/80 px-4 py-1 rounded border border-slate-800">
+                <span class="text-xs text-slate-400 font-cinzel">ROUND <span id="round-num">1</span></span>
+                <span id="match-timer" class="text-2xl font-bold font-mono text-amber-400">99</span>
             </div>
 
             <!-- Player 2 Status -->
-            <div class="flex-1 flex flex-col items-end gap-1">
-                <div class="flex justify-between w-full items-center flex-row-reverse">
-                    <span id="p2-name" class="font-nepali text-lg md:text-xl text-rose-400 tracking-wide">P2: KP OLI</span>
-                    <span id="p2-score" class="font-cinzel text-xs text-rose-200">SCORE: 0</span>
+            <div class="flex flex-col w-2/5 items-end">
+                <div class="flex justify-between items-center mb-1 w-full">
+                    <span id="p2-hp-text" class="text-xs text-slate-300 font-mono">100 / 100</span>
+                    <span id="p2-name" class="font-cinzel font-bold text-lg text-rose-400">BALEN SHAH</span>
                 </div>
-                <!-- HP Bar -->
-                <div class="w-full bg-slate-950 h-5 md:h-6 rounded-md border-2 border-amber-600/60 overflow-hidden relative p-0.5">
-                    <div id="p2-hp" class="h-full bg-gradient-to-l from-red-600 via-amber-500 to-emerald-500 rounded-sm transition-all duration-75 w-full"></div>
+                <div class="w-full bg-slate-800/80 h-5 rounded-sm border border-slate-700 overflow-hidden relative">
+                    <div id="p2-hp" class="health-bar-fill h-full bg-emerald-600 w-full float-right"></div>
                 </div>
-                <!-- Energy Gauge -->
-                <div class="w-full bg-slate-950 h-2.5 rounded-sm border border-slate-700 overflow-hidden mt-0.5 flex justify-end">
-                    <div id="p2-energy" class="h-full bg-cyan-400 transition-all duration-100 w-0"></div>
+                <!-- Special Meter -->
+                <div class="w-full bg-slate-950/80 h-2 mt-1 rounded-sm border border-slate-800 overflow-hidden">
+                    <div id="p2-special" class="special-gauge-fill h-full bg-amber-500 w-0 float-right"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Combo Indicators Overlay -->
-        <div class="absolute top-24 left-6 pointer-events-none z-10">
-            <div id="p1-combo" class="hidden font-cinzel text-3xl font-black text-amber-400 italic gold-glow animate-bounce">
-                <span id="p1-combo-count">2</span>x POWER COMBO!
-            </div>
-        </div>
-        <div class="absolute top-24 right-6 pointer-events-none z-10">
-            <div id="p2-combo" class="hidden font-cinzel text-3xl font-black text-rose-500 italic crimson-glow animate-bounce">
-                <span id="p2-combo-count">2</span>x POWER COMBO!
-            </div>
-        </div>
+        <!-- CANVAS ARENA -->
+        <div class="relative w-full aspect-video bg-slate-950 flex items-center justify-center">
+            <canvas id="gameCanvas" width="960" height="540" class="w-full h-full object-contain"></canvas>
 
-        <!-- Canvas Area -->
-        <div class="relative w-full flex-1 my-2 rounded-2xl overflow-hidden border-2 border-amber-900/60 shadow-2xl bg-black">
-            <canvas id="gameCanvas" class="w-full h-full block"></canvas>
-
-            <!-- Character Selection / Menu Overlay -->
-            <div id="start-overlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 sm:p-6 z-20 overflow-y-auto">
-                <div class="text-center mt-1">
-                    <h1 class="font-nepali text-3xl sm:text-5xl md:text-6xl font-bold text-amber-400 gold-glow tracking-wide mb-1">
-                        नेता भिडन्त (POLITICAL ROYALE)
-                    </h1>
-                    <h2 class="font-cinzel text-sm sm:text-xl font-black text-red-500 tracking-widest uppercase mb-1">
-                        KHUKURI CLASH: NEPALI LEADERS
-                    </h2>
-                    <p class="text-slate-300 text-xs font-semibold tracking-wide">Select Fighter & Challenge Singha Durbar Arena!</p>
+            <!-- START / SELECTION OVERLAY -->
+            <div id="select-screen" class="absolute inset-0 bg-slate-950/95 flex flex-col p-6 z-20 overflow-y-auto">
+                <div class="text-center mb-4">
+                    <h1 class="text-4xl font-black font-cinzel text-amber-400 gold-glow tracking-wider">KHUKURI CLASH</h1>
+                    <p class="text-sm text-slate-400 uppercase tracking-widest mt-1">Nepali Political Royale</p>
                 </div>
 
-                <!-- Leader Selection Matrix -->
-                <div class="w-full max-w-3xl my-2">
-                    <div class="text-center text-xs font-cinzel text-amber-300 mb-2 font-bold uppercase tracking-widest">Pick Leader for Player 1</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <!-- Balen Shah -->
-                        <button class="char-select-btn border-2 border-amber-500 bg-amber-950/60 p-2 sm:p-3 rounded-xl hover:bg-amber-800/40 transition text-center" data-char="balen">
-                            <div class="text-3xl mb-1">🕶️</div>
-                            <div class="font-nepali text-amber-300 text-sm font-bold">बालेन शाह (Balen)</div>
-                            <div class="text-[10px] text-cyan-300 font-semibold mt-1">Special: Dosar Bulldozer</div>
-                        </button>
-                        <!-- KP Oli -->
-                        <button class="char-select-btn border border-slate-700 bg-slate-900/60 p-2 sm:p-3 rounded-xl hover:bg-slate-800/40 transition text-center opacity-70" data-char="oli">
-                            <div class="text-3xl mb-1">☕</div>
-                            <div class="font-nepali text-rose-400 text-sm font-bold">केपी ओली (KP Oli)</div>
-                            <div class="text-[10px] text-amber-300 font-semibold mt-1">Special: Ukhan Tukana Blast</div>
-                        </button>
-                        <!-- Sher Bahadur Deuba -->
-                        <button class="char-select-btn border border-slate-700 bg-slate-900/60 p-2 sm:p-3 rounded-xl hover:bg-slate-800/40 transition text-center opacity-70" data-char="deuba">
-                            <div class="text-3xl mb-1">🏛️</div>
-                            <div class="font-nepali text-emerald-400 text-sm font-bold">देउवा (Deuba)</div>
-                            <div class="text-[10px] text-emerald-300 font-semibold mt-1">Special: Gathabandhan Pulse</div>
-                        </button>
-                        <!-- Prachanda -->
-                        <button class="char-select-btn border border-slate-700 bg-slate-900/60 p-2 sm:p-3 rounded-xl hover:bg-slate-800/40 transition text-center opacity-70" data-char="prachanda">
-                            <div class="text-3xl mb-1">🔥</div>
-                            <div class="font-nepali text-red-500 text-sm font-bold">प्रचण्ड (Prachanda)</div>
-                            <div class="text-[10px] text-red-300 font-semibold mt-1">Special: Lal Salam Flare</div>
-                        </button>
+                <!-- Mode Select -->
+                <div class="flex justify-center gap-4 mb-6">
+                    <button id="mode-p1" class="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded shadow transition font-cinzel text-sm">VS CPU</button>
+                    <button id="mode-p2" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded shadow transition font-cinzel text-sm border border-slate-700">2 PLAYERS</button>
+                </div>
+
+                <!-- Roster Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 max-w-4xl mx-auto w-full">
+                    <!-- Oli -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="oli">
+                        <div class="w-16 h-16 rounded-full bg-amber-900/40 border border-amber-500/50 flex items-center justify-center text-2xl mb-2">📜</div>
+                        <h3 class="font-bold text-amber-400 text-sm">KP OLI</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Ukhan Blast</p>
+                    </div>
+
+                    <!-- Deuba -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="deuba">
+                        <div class="w-16 h-16 rounded-full bg-emerald-900/40 border border-emerald-500/50 flex items-center justify-center text-2xl mb-2">🛡️</div>
+                        <h3 class="font-bold text-emerald-400 text-sm">SHER B. DEUBA</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Coalition Shield</p>
+                    </div>
+
+                    <!-- Prachanda -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="prachanda">
+                        <div class="w-16 h-16 rounded-full bg-rose-900/40 border border-rose-500/50 flex items-center justify-center text-2xl mb-2">🔥</div>
+                        <h3 class="font-bold text-rose-400 text-sm">PRACHANDA</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Red Flag Wave</p>
+                    </div>
+
+                    <!-- Balen -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="balen">
+                        <div class="w-16 h-16 rounded-full bg-blue-900/40 border border-blue-500/50 flex items-center justify-center text-2xl mb-2">🚜</div>
+                        <h3 class="font-bold text-blue-400 text-sm">BALEN SHAH</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Bulldozer Rush</p>
+                    </div>
+
+                    <!-- Harka -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="harka">
+                        <div class="w-16 h-16 rounded-full bg-teal-900/40 border border-teal-500/50 flex items-center justify-center text-2xl mb-2">🚰</div>
+                        <h3 class="font-bold text-teal-400 text-sm">HARKA SAMPANG</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Water Stream Rush</p>
+                    </div>
+
+                    <!-- Jung Bahadur -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="jung">
+                        <div class="w-16 h-16 rounded-full bg-amber-950 border border-amber-600 flex items-center justify-center text-2xl mb-2">👑</div>
+                        <h3 class="font-bold text-amber-300 text-sm">JUNG BAHADUR</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Royal Decree</p>
+                    </div>
+
+                    <!-- Rabi -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="rabi">
+                        <div class="w-16 h-16 rounded-full bg-sky-900/40 border border-sky-500/50 flex items-center justify-center text-2xl mb-2">🔔</div>
+                        <h3 class="font-bold text-sky-400 text-sm">RABI LAMICHHANE</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Bell Wave</p>
+                    </div>
+
+                    <!-- Gagan -->
+                    <div class="character-card bg-slate-900 border-2 border-slate-800 rounded-lg p-3 cursor-pointer flex flex-col items-center" data-id="gagan">
+                        <div class="w-16 h-16 rounded-full bg-indigo-900/40 border border-indigo-500/50 flex items-center justify-center text-2xl mb-2">🕯️</div>
+                        <h3 class="font-bold text-indigo-400 text-sm">GAGAN THAPA</h3>
+                        <p class="text-xs text-slate-400 text-center mt-1">Special: Youth Reform Arc</p>
                     </div>
                 </div>
 
-                <!-- Mode Selection -->
-                <div class="flex flex-col sm:flex-row gap-3 w-full max-w-md my-1">
-                    <button id="btn-vs-ai" class="nepal-btn flex-1 py-3 px-4 rounded-xl font-cinzel font-bold text-sm sm:text-base text-white tracking-wide uppercase">
-                        <i class="fa-solid fa-robot mr-2"></i> 1 Player (VS Leader AI)
-                    </button>
-                    <button id="btn-vs-player" class="nepal-btn-blue flex-1 py-3 px-4 rounded-xl font-cinzel font-bold text-sm sm:text-base text-white tracking-wide uppercase">
-                        <i class="fa-solid fa-users mr-2"></i> 2 Players (Local Brawl)
-                    </button>
-                </div>
-
-                <!-- Controls Guide -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl bg-slate-900/80 p-3 rounded-xl border border-amber-900/40 text-[11px] text-slate-300 mb-1">
-                    <div class="border-b md:border-b-0 md:border-r border-slate-800 pb-2 md:pb-0 md:pr-3">
-                        <div class="font-nepali text-amber-400 font-bold mb-1 text-xs">PLAYER 1 CONTROLS</div>
-                        <div><span class="text-white font-bold">Move & Jump:</span> W, A, S, D</div>
-                        <div><span class="text-white font-bold">Light Jab:</span> F</div>
-                        <div><span class="text-white font-bold">Heavy Slash:</span> G</div>
-                        <div><span class="text-white font-bold">Shield Block:</span> H</div>
-                        <div><span class="text-white font-bold">Political Ultimate:</span> R</div>
-                    </div>
-                    <div>
-                        <div class="font-nepali text-rose-400 font-bold mb-1 text-xs">PLAYER 2 CONTROLS</div>
-                        <div><span class="text-white font-bold">Move & Jump:</span> Arrow Keys</div>
-                        <div><span class="text-white font-bold">Light Jab:</span> K</div>
-                        <div><span class="text-white font-bold">Heavy Slash:</span> L</div>
-                        <div><span class="text-white font-bold">Shield Block:</span> ;</div>
-                        <div><span class="text-white font-bold">Political Ultimate:</span> I</div>
-                    </div>
+                <!-- Fight Action Button -->
+                <div class="text-center mt-auto">
+                    <button id="start-btn" class="px-10 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black font-cinzel text-lg rounded-lg shadow-lg tracking-wider transition transform hover:scale-105">ENTER ARENA</button>
                 </div>
             </div>
 
-            <!-- Game Over / Victory Overlay -->
-            <div id="gameover-overlay" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 z-20">
-                <h2 id="winner-nepali-text" class="font-nepali text-4xl sm:text-6xl font-bold text-amber-400 gold-glow mb-2 text-center">
-                    जीत! (VICTORY!)
-                </h2>
-                <h3 id="winner-text" class="font-cinzel text-xl sm:text-3xl font-bold text-white mb-6 text-center">
-                    BALEN SHAH WINS SINGHA DURBAR!
-                </h3>
-
-                <button id="btn-restart" class="nepal-btn py-4 px-10 rounded-xl font-cinzel font-bold text-lg text-white tracking-widest uppercase">
-                    पुनः भिडन्त (REMATCH)
-                </button>
+            <!-- ANNOUNCEMENT BANNER -->
+            <div id="banner" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/60 pointer-events-none">
+                <h2 id="banner-text" class="text-6xl font-black font-cinzel text-amber-400 gold-glow transform scale-110 transition-all">ROUND 1</h2>
+                <p id="banner-sub" class="text-xl font-bold text-slate-200 mt-2 tracking-widest">FIGHT!</p>
             </div>
         </div>
 
-        <!-- Mobile Touch Controls -->
-        <div id="touch-controls" class="flex md:hidden justify-between items-center w-full pt-1 gap-2">
-            <!-- Movement Touch Pad -->
-            <div class="grid grid-cols-3 gap-1 w-36 h-20">
-                <div></div>
-                <button id="t-up" class="touch-btn rounded-lg text-amber-400 font-bold text-base flex items-center justify-center"><i class="fa-solid fa-arrow-up"></i></button>
-                <div></div>
-                <button id="t-left" class="touch-btn rounded-lg text-amber-400 font-bold text-base flex items-center justify-center"><i class="fa-solid fa-arrow-left"></i></button>
-                <button id="t-down" class="touch-btn rounded-lg text-amber-400 font-bold text-base flex items-center justify-center"><i class="fa-solid fa-arrow-down"></i></button>
-                <button id="t-right" class="touch-btn rounded-lg text-amber-400 font-bold text-base flex items-center justify-center"><i class="fa-solid fa-arrow-right"></i></button>
+        <!-- CONTROLS FOOTER -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 flex justify-between text-xs text-slate-400 font-mono">
+            <div>
+                <span class="text-amber-400 font-bold">P1:</span> A/D Move | W Jump | S Block | J Attack | K Special
             </div>
-
-            <!-- Action Touch Buttons -->
-            <div class="grid grid-cols-2 gap-1.5">
-                <button id="t-atk1" class="touch-btn w-11 h-11 rounded-full text-amber-300 font-bold text-[10px] flex items-center justify-center">JAB</button>
-                <button id="t-atk2" class="touch-btn w-11 h-11 rounded-full text-rose-300 font-bold text-[10px] flex items-center justify-center">SLASH</button>
-                <button id="t-block" class="touch-btn w-11 h-11 rounded-full text-sky-300 font-bold text-[10px] flex items-center justify-center">BLOCK</button>
-                <button id="t-special" class="touch-btn w-11 h-11 rounded-full bg-amber-500/30 text-amber-200 font-bold text-[10px] flex items-center justify-center border-amber-400">ULTI</button>
+            <div>
+                <span class="text-rose-400 font-bold">P2:</span> ←/→ Move | ↑ Jump | ↓ Block | Numpad 1 Attack | Numpad 2 Special
             </div>
         </div>
     </div>
 
-    <!-- Game Script Engine -->
+    <!-- GAME ENGINE CODE -->
     <script>
-        // Web Audio Synthesizer (Madal Beat Percussion & Political SFX)
-        class NepaliAudioEngine {
-            constructor() {
-                this.ctx = null;
-                this.madalInterval = null;
-                this.isPlayingBeat = false;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-
-            startMadalBeat() {
-                if (this.isPlayingBeat) return;
-                this.init();
-                this.isPlayingBeat = true;
-                let step = 0;
-
-                this.madalInterval = setInterval(() => {
-                    if (!this.ctx || !this.isPlayingBeat) return;
-                    
-                    if (step % 2 === 0) {
-                        this.playMadalStrike(190, 0.14, 'bass');
-                    } else if (step === 3 || step === 7) {
-                        this.playMadalStrike(540, 0.08, 'treble');
-                    } else {
-                        this.playMadalStrike(360, 0.05, 'mid');
-                    }
-
-                    step = (step + 1) % 8;
-                }, 210);
-            }
-
-            stopMadalBeat() {
-                this.isPlayingBeat = false;
-                clearInterval(this.madalInterval);
-            }
-
-            playMadalStrike(freq, duration, type) {
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = type === 'bass' ? 'sine' : (type === 'treble' ? 'triangle' : 'square');
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + duration);
-
-                gain.gain.setValueAtTime(type === 'bass' ? 0.3 : 0.12, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
-            }
-
-            playSlash() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(900, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.15);
-
-                gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
-
-            playHit(heavy = false) {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = heavy ? 'sawtooth' : 'triangle';
-                osc.frequency.setValueAtTime(heavy ? 150 : 300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + (heavy ? 0.25 : 0.12));
-
-                gain.gain.setValueAtTime(0.45, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + (heavy ? 0.25 : 0.12));
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + (heavy ? 0.25 : 0.12));
-            }
-
-            playBlock() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(750, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(350, this.ctx.currentTime + 0.1);
-
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
-            }
-
-            playSpecial() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(950, this.ctx.currentTime + 0.45);
-
-                gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.5);
-            }
-
-            playKO() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(260, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.85);
-
-                gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.85);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.85);
-            }
-        }
-
-        const audioFX = new NepaliAudioEngine();
-
-        // Canvas Setup
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        // Audio Context Setup
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
 
-        const GRAVITY = 0.65;
-        let gameMode = 'ai';
-        let gameActive = false;
-        let selectedP1Char = 'balen';
-        let timerSeconds = 99;
+        function playSound(type) {
+            if (!audioCtx) audioCtx = new AudioCtx();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'special') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // Roster Definitions
+        const ROSTER = {
+            oli: { name: "KP Oli", color: "#d97706", weapon: "Khukuri", special: "Ukhan Blast" },
+            deuba: { name: "Sher Bahadur Deuba", color: "#059669", weapon: "Gathabandhan Shield", special: "Coalition Barrier" },
+            prachanda: { name: "Prachanda", color: "#dc2626", weapon: "Red Flag", special: "Red Flag Wave" },
+            balen: { name: "Balen Shah", color: "#2563eb", weapon: "Glasses Beam", special: "Bulldozer Rush" },
+            harka: { name: "Harka Sampang", color: "#0d9488", weapon: "Shovel", special: "Water Stream Rush" },
+            jung: { name: "Jung Bahadur Rana", color: "#b45309", weapon: "Royal Tarwar", special: "Royal Decree" },
+            rabi: { name: "Rabi Lamichhane", color: "#0284c7", weapon: "Bell Mace", special: "Bell Wave" },
+            gagan: { name: "Gagan Thapa", color: "#4f46e5", weapon: "Reform Torch", special: "Youth Reform Arc" }
+        };
+
+        // Game State
+        let isVSMode = true;
+        let selectedP1 = 'oli';
+        let selectedP2 = 'balen';
+        let p1, p2;
+        let particles = [];
+        let gameState = 'MENU';
+        let matchTime = 99;
         let timerInterval = null;
 
-        let particles = [];
-        let prayerFlags = [];
+        // Player Class
+        class Player {
+            constructor(x, id, charKey, isCPU = false) {
+                this.x = x;
+                this.y = 360;
+                this.width = 50;
+                this.height = 110;
+                this.id = id;
+                this.char = ROSTER[charKey];
+                this.vx = 0;
+                this.vy = 0;
+                this.hp = 100;
+                this.special = 0;
+                this.isGrounded = true;
+                this.isAttacking = false;
+                this.isBlocking = false;
+                this.attackCooldown = 0;
+                this.facingRight = id === 1;
+                this.isCPU = isCPU;
+            }
 
-        function initPrayerFlags() {
-            prayerFlags = [];
-            const flagColors = ['#2563eb', '#ffffff', '#dc2626', '#16a34a', '#eab308'];
-            const flagCount = Math.floor(canvas.width / 35);
-            
-            for (let i = 0; i < flagCount; i++) {
-                prayerFlags.push({
-                    x: i * 38 + 15,
-                    y: 65 + Math.sin(i * 0.4) * 10,
-                    color: flagColors[i % flagColors.length]
+            update(enemy) {
+                // Gravity & Movement
+                this.vy += 0.8;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Floor collision
+                if (this.y >= 360) {
+                    this.y = 360;
+                    this.vy = 0;
+                    this.isGrounded = true;
+                }
+
+                // Bounds
+                if (this.x < 30) this.x = 30;
+                if (this.x > 880) this.x = 880;
+
+                // Auto Face Enemy
+                if (enemy) {
+                    this.facingRight = this.x < enemy.x;
+                }
+
+                if (this.attackCooldown > 0) this.attackCooldown--;
+
+                // CPU AI
+                if (this.isCPU && enemy) {
+                    this.updateCPU(enemy);
+                }
+            }
+
+            updateCPU(enemy) {
+                const dist = Math.abs(this.x - enemy.x);
+
+                if (dist > 80) {
+                    this.vx = this.x < enemy.x ? 2.5 : -2.5;
+                } else {
+                    this.vx = 0;
+                    if (Math.random() < 0.05) this.attack(enemy);
+                }
+
+                if (this.special >= 100 && Math.random() < 0.02) {
+                    this.useSpecial(enemy);
+                }
+            }
+
+            attack(enemy) {
+                if (this.attackCooldown > 0) return;
+                this.isAttacking = true;
+                this.attackCooldown = 25;
+
+                playSound('hit');
+
+                // Hitbox check
+                const attackRange = 70;
+                const hit = this.facingRight ? 
+                    (enemy.x >= this.x && enemy.x <= this.x + attackRange) :
+                    (enemy.x <= this.x && enemy.x >= this.x - attackRange);
+
+                if (hit && Math.abs(this.y - enemy.y) < 50) {
+                    const dmg = enemy.isBlocking ? 2 : 8;
+                    enemy.hp = Math.max(0, enemy.hp - dmg);
+                    this.special = Math.min(100, this.special + 12);
+                    createHitParticles(enemy.x, enemy.y + 40, this.char.color);
+                }
+
+                setTimeout(() => { this.isAttacking = false; }, 200);
+            }
+
+            useSpecial(enemy) {
+                if (this.special < 100) return;
+                this.special = 0;
+                playSound('special');
+
+                enemy.hp = Math.max(0, enemy.hp - 22);
+                createHitParticles(enemy.x, enemy.y + 30, '#f59e0b', 30);
+            }
+
+            draw() {
+                ctx.save();
+                
+                // Muted Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(this.x + 25, 470, 25, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Body
+                ctx.fillStyle = this.char.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                // Head
+                ctx.fillStyle = '#fbcfe8';
+                ctx.beginPath();
+                ctx.arc(this.x + 25, this.y - 15, 18, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Topi / Crown Accent
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(this.x + 10, this.y - 30, 30, 8);
+
+                // Facing Indicator / Weapon
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                const weaponX = this.facingRight ? this.x + 45 : this.x + 5;
+                ctx.moveTo(this.x + 25, this.y + 40);
+                ctx.lineTo(weaponX + (this.facingRight ? 30 : -30), this.y + (this.isAttacking ? 20 : 40));
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        // Particles
+        function createHitParticles(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 20,
+                    color
                 });
             }
         }
 
-        class Particle {
-            constructor(x, y, color, vx, vy, size = 4) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.vx = vx;
-                this.vy = vy;
-                this.size = size;
-                this.life = 1.0;
-                this.decay = Math.random() * 0.04 + 0.02;
-            }
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life -= this.decay;
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, this.life);
-                ctx.fillStyle = this.color;
+                ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        }
-
-        function createHitSparks(x, y, color, count = 14) {
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 7 + 2;
-                particles.push(new Particle(
-                    x, y, color,
-                    Math.cos(angle) * speed,
-                    Math.sin(angle) * speed,
-                    Math.random() * 5 + 2
-                ));
-            }
-        }
-
-        // Nepali Political Leader Configurations
-        const CHAR_CONFIGS = {
-            balen: {
-                name: 'BALEN SHAH',
-                nepaliName: 'बालेन शाह',
-                bodyColor: '#1e293b', // Dark jacket
-                hatType: 'cap',
-                hatColor: '#0f172a',
-                glasses: true,
-                specialName: 'Dosar Bulldozer Smash',
-                specialColor: '#06b6d4',
-                specialIcon: '🚜'
-            },
-            oli: {
-                name: 'KP SHARMA OLI',
-                nepaliName: 'केपी शर्मा ओली',
-                bodyColor: '#451a03', // Traditional Daura Suruwal coat
-                hatType: 'topi',
-                hatColor: '#d97706',
-                glasses: true,
-                specialName: 'Ukhan Tukana Blast',
-                specialColor: '#f59e0b',
-                specialIcon: '☕'
-            },
-            deuba: {
-                name: 'SHER BAHADUR DEUBA',
-                nepaliName: 'शेरबहादुर देउवा',
-                bodyColor: '#064e3b', // Dark green coat
-                hatType: 'topi',
-                hatColor: '#10b981',
-                glasses: true,
-                specialName: 'Gathabandhan Shield Pulse',
-                specialColor: '#10b981',
-                specialIcon: '🏛️'
-            },
-            prachanda: {
-                name: 'PRACHANDA',
-                nepaliName: 'पुष्पकमल दाहाल (प्रचण्ड)',
-                bodyColor: '#7f1d1d', // Red revolution coat
-                hatType: 'topi',
-                hatColor: '#b91c1c',
-                scarf: true,
-                specialName: 'Lal Salam Flare',
-                specialColor: '#ef4444',
-                specialIcon: '🔥'
-            }
-        };
-
-        // Fighter Class
-        class Fighter {
-            constructor({ position, velocity, charType, isAI = false, facing = 'right' }) {
-                this.position = position;
-                this.velocity = velocity;
-                this.charType = charType;
-                this.config = CHAR_CONFIGS[charType];
-                this.width = 56;
-                this.height = 115;
-                this.isAI = isAI;
-                this.facing = facing;
-
-                this.hp = 100;
-                this.maxHp = 100;
-                this.energy = 0;
-                this.score = 0;
-                this.combo = 0;
-                this.comboTimer = null;
-
-                this.isGrounded = false;
-                this.isAttacking = false;
-                this.attackType = null;
-                this.attackBox = { position: { x: 0, y: 0 }, width: 0, height: 0 };
-
-                this.isBlocking = false;
-                this.isStunned = false;
-                this.stunTimer = 0;
-                this.aiTimer = 0;
-            }
-
-            draw(ctx) {
-                ctx.save();
-
-                // Shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-                ctx.beginPath();
-                ctx.ellipse(
-                    this.position.x + this.width / 2, 
-                    canvas.height - 40, 
-                    this.width * 0.75, 
-                    10, 0, 0, Math.PI * 2
-                );
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Shield Aura
-                if (this.isBlocking) {
-                    ctx.strokeStyle = '#38bdf8';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.arc(
-                        this.position.x + this.width / 2,
-                        this.position.y + this.height / 2,
-                        65, 0, Math.PI * 2
-                    );
-                    ctx.stroke();
-                }
-
-                // Fighter Body/Coat
-                ctx.fillStyle = this.isStunned ? '#64748b' : this.config.bodyColor;
-                ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-                // Head/Face Canvas
-                ctx.fillStyle = '#fde047'; // Skin tone
-                ctx.fillRect(this.position.x + 8, this.position.y - 5, this.width - 16, 25);
-
-                // Scarf for Prachanda
-                if (this.config.scarf) {
-                    ctx.fillStyle = '#dc2626';
-                    ctx.fillRect(this.position.x + 4, this.position.y + 18, this.width - 8, 8);
-                }
-
-                // Custom Headwear (Dhaka Topi vs Cap)
-                if (this.config.hatType === 'topi') {
-                    // Traditional Dhaka Topi
-                    ctx.fillStyle = this.config.hatColor;
-                    ctx.beginPath();
-                    ctx.moveTo(this.position.x + 4, this.position.y - 4);
-                    ctx.lineTo(this.position.x + this.width - 4, this.position.y - 4);
-                    ctx.lineTo(this.position.x + (this.facing === 'right' ? this.width - 2 : 6), this.position.y - 24);
-                    ctx.closePath();
-                    ctx.fill();
-
-                    // Pattern stripes on topi
-                    ctx.strokeStyle = '#f59e0b';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(this.position.x + 8, this.position.y - 12);
-                    ctx.lineTo(this.position.x + this.width - 8, this.position.y - 12);
-                    ctx.stroke();
-                } else if (this.config.hatType === 'cap') {
-                    // Balen Modern Black Cap
-                    ctx.fillStyle = this.config.hatColor;
-                    ctx.fillRect(this.position.x + 4, this.position.y - 18, this.width - 8, 14);
-                    // Visor
-                    ctx.fillRect(
-                        this.facing === 'right' ? this.position.x + 15 : this.position.x - 8,
-                        this.position.y - 8, 
-                        25, 4
-                    );
-                }
-
-                // Glasses / Sunglasses for Balen, Deuba, Oli
-                if (this.config.glasses) {
-                    ctx.fillStyle = '#0f172a'; // Black sunglasses frame
-                    const eyeX = this.facing === 'right' ? this.position.x + this.width - 22 : this.position.x + 6;
-                    ctx.fillRect(eyeX, this.position.y + 2, 16, 7);
-                }
-
-                // Special Attack Visual Slash/Effect
-                if (this.isAttacking) {
-                    if (this.attackType === 'special') {
-                        // Special Icon / Particle Surge
-                        ctx.font = '36px sans-serif';
-                        const iconX = this.facing === 'right' ? this.position.x + this.width + 20 : this.position.x - 60;
-                        ctx.fillText(this.config.specialIcon, iconX, this.position.y + 50);
-                    }
-
-                    ctx.fillStyle = this.attackType === 'special' ? this.config.specialColor : 
-                                   (this.attackType === 'heavy' ? 'rgba(225, 29, 72, 0.5)' : 'rgba(56, 189, 248, 0.4)');
-                    ctx.fillRect(
-                        this.attackBox.position.x,
-                        this.attackBox.position.y,
-                        this.attackBox.width,
-                        this.attackBox.height
-                    );
-                }
-
-                ctx.restore();
-            }
-
-            update(opponent) {
-                // Gravity & Movement
-                this.position.x += this.velocity.x;
-                this.position.y += this.velocity.y;
-
-                const groundY = canvas.height - 40 - this.height;
-
-                if (this.position.y + this.velocity.y >= groundY) {
-                    this.velocity.y = 0;
-                    this.position.y = groundY;
-                    this.isGrounded = true;
-                } else {
-                    this.velocity.y += GRAVITY;
-                    this.isGrounded = false;
-                }
-
-                // Bounds
-                if (this.position.x < 20) this.position.x = 20;
-                if (this.position.x + this.width > canvas.width - 20) {
-                    this.position.x = canvas.width - 20 - this.width;
-                }
-
-                // Facing direction
-                if (opponent) {
-                    this.facing = this.position.x < opponent.position.x ? 'right' : 'left';
-                }
-
-                // Stun decay
-                if (this.isStunned) {
-                    this.stunTimer--;
-                    if (this.stunTimer <= 0) this.isStunned = false;
-                }
-
-                // AI Engine
-                if (this.isAI && gameActive && !this.isStunned) {
-                    this.handleAI(opponent);
-                }
-            }
-
-            attack(type = 'light') {
-                if (this.isAttacking || this.isStunned) return;
-
-                if (type === 'special') {
-                    if (this.energy < 100) return;
-                    this.energy = 0;
-                    audioFX.playSpecial();
-                } else {
-                    audioFX.playSlash();
-                }
-
-                this.isAttacking = true;
-                this.attackType = type;
-
-                const range = type === 'special' ? 140 : (type === 'heavy' ? 85 : 60);
-                const attackHeight = type === 'special' ? 110 : 50;
-
-                this.attackBox = {
-                    position: {
-                        x: this.facing === 'right' ? this.position.x + this.width : this.position.x - range,
-                        y: this.position.y + 15
-                    },
-                    width: range,
-                    height: attackHeight
-                };
-
-                const attackDuration = type === 'special' ? 420 : (type === 'heavy' ? 260 : 160);
-
-                setTimeout(() => {
-                    this.isAttacking = false;
-                }, attackDuration);
-            }
-
-            takeDamage(amount, type) {
-                if (this.isBlocking) {
-                    amount *= 0.2;
-                    audioFX.playBlock();
-                } else {
-                    audioFX.playHit(type === 'heavy');
-                    this.isStunned = true;
-                    this.stunTimer = 12;
-                }
-
-                this.hp = Math.max(0, this.hp - amount);
-                this.energy = Math.min(100, this.energy + 18);
-
-                const sparkX = this.position.x + this.width / 2;
-                const sparkY = this.position.y + this.height / 3;
-                createHitSparks(sparkX, sparkY, this.config.specialColor, 16);
-            }
-
-            registerCombo() {
-                this.combo++;
-                this.score += this.combo * 150;
-                clearTimeout(this.comboTimer);
-                this.comboTimer = setTimeout(() => {
-                    this.combo = 0;
-                }, 1500);
-            }
-
-            handleAI(opponent) {
-                this.aiTimer++;
-                if (this.aiTimer % 9 !== 0) return;
-
-                const dx = opponent.position.x - this.position.x;
-                const dist = Math.abs(dx);
-
-                if (dist > 90) {
-                    this.velocity.x = dx > 0 ? 4.8 : -4.8;
-                } else if (dist < 35) {
-                    this.velocity.x = dx > 0 ? -3 : 3;
-                } else {
-                    this.velocity.x = 0;
-                }
-
-                if (Math.random() < 0.08 && this.isGrounded) {
-                    this.velocity.y = -14.5;
-                }
-
-                if (dist < 105) {
-                    const rnd = Math.random();
-                    if (this.energy >= 100 && rnd < 0.5) {
-                        this.attack('special');
-                    } else if (rnd < 0.35) {
-                        this.attack('heavy');
-                    } else if (rnd < 0.75) {
-                        this.attack('light');
-                    } else if (rnd < 0.9) {
-                        this.isBlocking = true;
-                        setTimeout(() => this.isBlocking = false, 400);
-                    }
-                }
+                if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
-        // Initialize Players
-        let player1 = new Fighter({
-            position: { x: 150, y: 100 },
-            velocity: { x: 0, y: 0 },
-            charType: 'balen',
-            facing: 'right'
-        });
+        // Draw Stage Backdrop (Kathmandu Hilltop Overlook)
+        function drawBackground() {
+            // Sky Gradient
+            const sky = ctx.createLinearGradient(0, 0, 0, 300);
+            sky.addColorStop(0, '#0f172a');
+            sky.addColorStop(1, '#1e293b');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, 960, 540);
 
-        let player2 = new Fighter({
-            position: { x: 650, y: 100 },
-            velocity: { x: 0, y: 0 },
-            charType: 'oli',
-            isAI: true,
-            facing: 'left'
-        });
+            // Himalayan Peaks Outline
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.moveTo(0, 220);
+            ctx.lineTo(120, 140);
+            ctx.lineTo(240, 200);
+            ctx.lineTo(400, 110);
+            ctx.lineTo(580, 210);
+            ctx.lineTo(750, 120);
+            ctx.lineTo(960, 230);
+            ctx.lineTo(960, 300);
+            ctx.lineTo(0, 300);
+            ctx.fill();
 
-        // Key Controls
-        const keys = {
-            w: false, a: false, s: false, d: false,
-            f: false, g: false, h: false, r: false,
-            ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false,
-            k: false, l: false, ';': false, i: false
-        };
+            // Valley Hills
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.ellipse(200, 340, 300, 100, 0, 0, Math.PI * 2);
+            ctx.ellipse(700, 350, 350, 110, 0, 0, Math.PI * 2);
+            ctx.fill();
 
+            // Arena Stone Ground
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 470, 960, 70);
+
+            // Hilltop Stone Railing
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 470);
+            ctx.lineTo(960, 470);
+            ctx.stroke();
+        }
+
+        // Game Loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, 960, 540);
+
+            drawBackground();
+
+            if (gameState === 'PLAYING') {
+                p1.update(p2);
+                p2.update(p1);
+
+                p1.draw();
+                p2.draw();
+
+                updateParticles();
+                updateHUD();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update HUD Values
+        function updateHUD() {
+            document.getElementById('p1-hp').style.width = p1.hp + '%';
+            document.getElementById('p2-hp').style.width = p2.hp + '%';
+            document.getElementById('p1-hp-text').innerText = `${Math.ceil(p1.hp)} / 100`;
+            document.getElementById('p2-hp-text').innerText = `${Math.ceil(p2.hp)} / 100`;
+
+            document.getElementById('p1-special').style.width = p1.special + '%';
+            document.getElementById('p2-special').style.width = p2.special + '%';
+
+            if ((p1.hp <= 0 || p2.hp <= 0) && gameState === 'PLAYING') {
+                endGame(p1.hp > 0 ? p1.char.name : p2.char.name);
+            }
+        }
+
+        // Start Match
+        function startMatch() {
+            p1 = new Player(200, 1, selectedP1);
+            p2 = new Player(700, 2, selectedP2, isVSMode);
+
+            document.getElementById('p1-name').innerText = p1.char.name.toUpperCase();
+            document.getElementById('p2-name').innerText = p2.char.name.toUpperCase();
+
+            document.getElementById('select-screen').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+
+            showBanner("ROUND 1", "FIGHT!", () => {
+                gameState = 'PLAYING';
+                matchTime = 99;
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    matchTime--;
+                    document.getElementById('match-timer').innerText = matchTime;
+                    if (matchTime <= 0) endGame("TIME OUT");
+                }, 1000);
+            });
+        }
+
+        function showBanner(main, sub, callback) {
+            const banner = document.getElementById('banner');
+            document.getElementById('banner-text').innerText = main;
+            document.getElementById('banner-sub').innerText = sub;
+            banner.classList.remove('hidden');
+
+            setTimeout(() => {
+                banner.classList.add('hidden');
+                if (callback) callback();
+            }, 1200);
+        }
+
+        function endGame(winnerName) {
+            gameState = 'ENDED';
+            clearInterval(timerInterval);
+            showBanner("VICTORY!", `${winnerName.toUpperCase()} WINS!`, () => {
+                document.getElementById('select-screen').classList.remove('hidden');
+                document.getElementById('hud').classList.add('hidden');
+            });
+        }
+
+        // Input Listeners
+        const keys = {};
         window.addEventListener('keydown', (e) => {
-            audioFX.init();
-            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
-                const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-                keys[k] = true;
+            keys[e.code] = true;
+
+            if (gameState === 'PLAYING') {
+                // P1 Movement
+                if (e.code === 'KeyA') p1.vx = -4;
+                if (e.code === 'KeyD') p1.vx = 4;
+                if (e.code === 'KeyW' && p1.isGrounded) { p1.vy = -14; p1.isGrounded = false; }
+                if (e.code === 'KeyJ') p1.attack(p2);
+                if (e.code === 'KeyK') p1.useSpecial(p2);
+
+                // P2 Manual Controls
+                if (!isVSMode) {
+                    if (e.code === 'ArrowLeft') p2.vx = -4;
+                    if (e.code === 'ArrowRight') p2.vx = 4;
+                    if (e.code === 'ArrowUp' && p2.isGrounded) { p2.vy = -14; p2.isGrounded = false; }
+                    if (e.code === 'Numpad1') p2.attack(p1);
+                    if (e.code === 'Numpad2') p2.useSpecial(p1);
+                }
             }
         });
 
         window.addEventListener('keyup', (e) => {
-            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
-                const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-                keys[k] = false;
-            }
+            keys[e.code] = false;
+            if (['KeyA', 'KeyD'].includes(e.code)) p1.vx = 0;
+            if (['ArrowLeft', 'ArrowRight'].includes(e.code) && !isVSMode) p2.vx = 0;
         });
 
-        function setupTouchControl(btnId, keyName) {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                audioFX.init();
-                keys[keyName] = true;
-            });
-
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                keys[keyName] = false;
-            });
-        }
-
-        setupTouchControl('t-up', 'w');
-        setupTouchControl('t-left', 'a');
-        setupTouchControl('t-down', 's');
-        setupTouchControl('t-right', 'd');
-        setupTouchControl('t-atk1', 'f');
-        setupTouchControl('t-atk2', 'g');
-        setupTouchControl('t-block', 'h');
-        setupTouchControl('t-special', 'r');
-
-        // Character Select Handlers
-        document.querySelectorAll('.char-select-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.char-select-btn').forEach(b => {
-                    b.classList.remove('border-amber-500', 'bg-amber-950/60');
-                    b.classList.add('border-slate-700', 'bg-slate-900/60', 'opacity-70');
-                });
-                const target = e.currentTarget;
-                target.classList.remove('border-slate-700', 'bg-slate-900/60', 'opacity-70');
-                target.classList.add('border-amber-500', 'bg-amber-950/60');
-                selectedP1Char = target.dataset.char;
+        // Roster Selection UI Handlers
+        document.querySelectorAll('.character-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedP1 = card.dataset.id;
             });
         });
 
-        function checkCollision(attacker, defender) {
-            if (!attacker.isAttacking) return false;
-
-            const box = attacker.attackBox;
-            return (
-                box.position.x < defender.position.x + defender.width &&
-                box.position.x + box.width > defender.position.x &&
-                box.position.y < defender.position.y + defender.height &&
-                box.position.y + box.height > defender.position.y
-            );
-        }
-
-        function processInputs() {
-            // Player 1
-            player1.velocity.x = 0;
-            if (keys.a) player1.velocity.x = -6;
-            if (keys.d) player1.velocity.x = 6;
-            if (keys.w && player1.isGrounded) {
-                player1.velocity.y = -15;
-                player1.isGrounded = false;
-            }
-
-            player1.isBlocking = keys.s || keys.h;
-            if (keys.f) player1.attack('light');
-            if (keys.g) player1.attack('heavy');
-            if (keys.r) player1.attack('special');
-
-            // Player 2
-            if (!player2.isAI) {
-                player2.velocity.x = 0;
-                if (keys.ArrowLeft) player2.velocity.x = -6;
-                if (keys.ArrowRight) player2.velocity.x = 6;
-                if (keys.ArrowUp && player2.isGrounded) {
-                    player2.velocity.y = -15;
-                    player2.isGrounded = false;
-                }
-
-                player2.isBlocking = keys.ArrowDown || keys[';'];
-                if (keys.k) player2.attack('light');
-                if (keys.l) player2.attack('heavy');
-                if (keys.i) player2.attack('special');
-            }
-        }
-
-        // Render Singha Durbar Backdrop
-        function drawNepaliArena() {
-            // Sky Gradient
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGrad.addColorStop(0, '#090d16');
-            skyGrad.addColorStop(0.5, '#1e1b4b');
-            skyGrad.addColorStop(1, '#450a0a');
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Himalayan Snow Peaks in background
-            ctx.fillStyle = '#e2e8f0';
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - 200);
-            ctx.lineTo(canvas.width * 0.25, canvas.height - 330);
-            ctx.lineTo(canvas.width * 0.5, canvas.height - 390); // Everest
-            ctx.lineTo(canvas.width * 0.75, canvas.height - 290);
-            ctx.lineTo(canvas.width, canvas.height - 200);
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
-            ctx.closePath();
-            ctx.fill();
-
-            // Singha Durbar Parliament Pillars Silhouette
-            ctx.fillStyle = '#1e293b';
-            const durbarWidth = canvas.width * 0.6;
-            const durbarX = (canvas.width - durbarWidth) / 2;
-            
-            // Central Dome
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height - 210, 50, Math.PI, 0);
-            ctx.fill();
-
-            // Main Building Block
-            ctx.fillRect(durbarX, canvas.height - 210, durbarWidth, 170);
-
-            // Columns
-            ctx.fillStyle = '#0f172a';
-            for (let i = 0; i < 10; i++) {
-                ctx.fillRect(durbarX + 20 + i * (durbarWidth / 10), canvas.height - 210, 12, 170);
-            }
-
-            // Prayer Flags String Line
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 65);
-            ctx.quadraticCurveTo(canvas.width / 2, 100, canvas.width, 65);
-            ctx.stroke();
-
-            // Render Prayer Flags
-            prayerFlags.forEach(flag => {
-                ctx.fillStyle = flag.color;
-                ctx.beginPath();
-                ctx.moveTo(flag.x, flag.y);
-                ctx.lineTo(flag.x + 18, flag.y + 5);
-                ctx.lineTo(flag.x + 9, flag.y + 24);
-                ctx.closePath();
-                ctx.fill();
-            });
-
-            // Stage Floor
-            const groundY = canvas.height - 40;
-            ctx.fillStyle = '#1c1917';
-            ctx.fillRect(0, groundY, canvas.width, 40);
-
-            // Brass Trim
-            ctx.strokeStyle = '#d97706';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(0, groundY);
-            ctx.lineTo(canvas.width, groundY);
-            ctx.stroke();
-        }
-
-        function updateUI() {
-            document.getElementById('p1-hp').style.width = `${player1.hp}%`;
-            document.getElementById('p2-hp').style.width = `${player2.hp}%`;
-
-            document.getElementById('p1-energy').style.width = `${player1.energy}%`;
-            document.getElementById('p2-energy').style.width = `${player2.energy}%`;
-
-            document.getElementById('p1-score').innerText = `SCORE: ${player1.score}`;
-            document.getElementById('p2-score').innerText = `SCORE: ${player2.score}`;
-
-            const p1ComboEl = document.getElementById('p1-combo');
-            if (player1.combo > 1) {
-                p1ComboEl.classList.remove('hidden');
-                document.getElementById('p1-combo-count').innerText = player1.combo;
-            } else {
-                p1ComboEl.classList.add('hidden');
-            }
-
-            const p2ComboEl = document.getElementById('p2-combo');
-            if (player2.combo > 1) {
-                p2ComboEl.classList.remove('hidden');
-                document.getElementById('p2-combo-count').innerText = player2.combo;
-            } else {
-                p2ComboEl.classList.add('hidden');
-            }
-        }
-
-        function gameLoop() {
-            drawNepaliArena();
-
-            if (gameActive) {
-                processInputs();
-
-                player1.update(player2);
-                player2.update(player1);
-
-                if (checkCollision(player1, player2)) {
-                    player1.isAttacking = false;
-                    const dmg = player1.attackType === 'special' ? 34 : (player1.attackType === 'heavy' ? 18 : 9);
-                    player2.takeDamage(dmg, player1.attackType);
-                    player1.registerCombo();
-                }
-
-                if (checkCollision(player2, player1)) {
-                    player2.isAttacking = false;
-                    const dmg = player2.attackType === 'special' ? 34 : (player2.attackType === 'heavy' ? 18 : 9);
-                    player1.takeDamage(dmg, player2.attackType);
-                    player2.registerCombo();
-                }
-
-                if (player1.hp <= 0 || player2.hp <= 0) {
-                    endGame(player1.hp > 0 ? player1 : player2);
-                }
-
-                updateUI();
-            }
-
-            particles.forEach((p, idx) => {
-                p.update();
-                p.draw(ctx);
-                if (p.life <= 0) particles.splice(idx, 1);
-            });
-
-            player1.draw(ctx);
-            player2.draw(ctx);
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            timerSeconds = 99;
-            document.getElementById('timer').innerText = timerSeconds;
-
-            timerInterval = setInterval(() => {
-                if (!gameActive) return;
-                timerSeconds--;
-                document.getElementById('timer').innerText = timerSeconds;
-
-                if (timerSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    const winner = player1.hp >= player2.hp ? player1 : player2;
-                    endGame(winner, 'समय सकियो! (TIME OVER!)');
-                }
-            }, 1000);
-        }
-
-        function startGame(mode) {
-            gameMode = mode;
-            gameActive = true;
-
-            player1 = new Fighter({
-                position: { x: 150, y: 100 },
-                velocity: { x: 0, y: 0 },
-                charType: selectedP1Char,
-                facing: 'right'
-            });
-
-            // Pick different politician for P2
-            const availableP2 = Object.keys(CHAR_CONFIGS).filter(c => c !== selectedP1Char);
-            const randomP2 = availableP2[Math.floor(Math.random() * availableP2.length)];
-
-            player2 = new Fighter({
-                position: { x: canvas.width - 200, y: 100 },
-                velocity: { x: 0, y: 0 },
-                charType: randomP2,
-                isAI: (mode === 'ai'),
-                facing: 'left'
-            });
-
-            document.getElementById('p1-name').innerText = `P1: ${player1.config.name}`;
-            document.getElementById('p2-name').innerText = `P2: ${player2.config.name} ${player2.isAI ? '(AI)' : ''}`;
-
-            document.getElementById('start-overlay').classList.add('hidden');
-            document.getElementById('gameover-overlay').classList.add('hidden');
-
-            audioFX.startMadalBeat();
-            startTimer();
-        }
-
-        function endGame(winner) {
-            gameActive = false;
-            clearInterval(timerInterval);
-            audioFX.stopMadalBeat();
-            audioFX.playKO();
-
-            document.getElementById('winner-nepali-text').innerText = `${winner.config.nepaliName} विजयी!`;
-            document.getElementById('winner-text').innerText = `${winner.config.name} WINS SINGHA DURBAR!`;
-            document.getElementById('gameover-overlay').classList.remove('hidden');
-        }
-
-        document.getElementById('btn-vs-ai').addEventListener('click', () => startGame('ai'));
-        document.getElementById('btn-vs-player').addEventListener('click', () => startGame('player'));
-        document.getElementById('btn-restart').addEventListener('click', () => {
-            document.getElementById('gameover-overlay').classList.add('hidden');
-            document.getElementById('start-overlay').classList.remove('hidden');
+        document.getElementById('mode-p1').addEventListener('click', () => {
+            isVSMode = true;
+            document.getElementById('mode-p1').className = "px-6 py-2 bg-amber-600 text-slate-950 font-bold rounded shadow transition font-cinzel text-sm";
+            document.getElementById('mode-p2').className = "px-6 py-2 bg-slate-800 text-slate-300 font-bold rounded shadow transition font-cinzel text-sm border border-slate-700";
         });
 
-        window.onload = function() {
-            resizeCanvas();
-            initPrayerFlags();
-            requestAnimationFrame(gameLoop);
-        };
+        document.getElementById('mode-p2').addEventListener('click', () => {
+            isVSMode = false;
+            document.getElementById('mode-p2').className = "px-6 py-2 bg-amber-600 text-slate-950 font-bold rounded shadow transition font-cinzel text-sm";
+            document.getElementById('mode-p1').className = "px-6 py-2 bg-slate-800 text-slate-300 font-bold rounded shadow transition font-cinzel text-sm border border-slate-700";
+        });
+
+        document.getElementById('start-btn').addEventListener('click', startMatch);
+
+        // Init Engine
+        gameLoop();
     </script>
 </body>
 </html>
